@@ -8,14 +8,16 @@ generator client {
 }
 
 model User {
-  id    String @id @default(cuid())
-  email String @unique
+  id        String @id @default(cuid())
+  email     String @unique
+  firstName String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   password Password?
-  notes    Note[]
+  delays   Delay[]
+  vomits   Vomit[]
 }
 
 model Password {
@@ -25,7 +27,7 @@ model Password {
   userId String @unique
 }
 
-model Note {
+model Delay {
   id    String @id @default(cuid())
   title String
   body  String
@@ -35,4 +37,27 @@ model Note {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+
+  vomits Vomit[]
+}
+
+model Vomit {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  delay   Delay  @relation(fields: [delayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  delayId String
+}
+
+model Streak {
+  id   String @id @default(cuid())
+  days Int
+
+  startDay DateTime
+  endDay   DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
