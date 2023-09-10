@@ -1,3 +1,19 @@
+import { Outlet } from "@remix-run/react";
+import { Nav } from "~/components/nav";
+import { useOptionalUser } from "~/utils";
+
 export default function AtrasosRoute() {
-  return <h1>Atrasos Route</h1>;
+  const user = useOptionalUser();
+
+  return (
+    <div className="flex min-h-full flex-col">
+      <header className="">
+        <Nav userId={user?.id} />
+      </header>
+
+      <main className="mt-8">
+        <Outlet />
+      </main>
+    </div>
+  );
 }
