@@ -5,11 +5,12 @@ import { useEffect, useRef } from "react";
 import { Button } from "~/components/button";
 import { Logo } from "~/components/logo";
 
-import { verifyLogin } from "~/models/user.server";
+import { createUser, getUserByEmail } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
 import { safeRedirect } from "~/utils";
 import {
   validateEmailField,
+  validateFirstNameField,
   validatePasswordField,
 } from "~/utils/input-validation";
 import { badRequest } from "~/utils/request.server";
@@ -22,12 +23,16 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
+  const firstName = formData.get("firstName");
   const email = formData.get("email");
   const password = formData.get("password");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
-  const remember = formData.get("remember");
 
-  if (typeof email !== "string" || typeof password !== "string") {
+  if (
+    typeof firstName !== "string" ||
+    typeof email !== "string" ||
+    typeof password !== "string"
+  ) {
     return badRequest({
       fieldErrors: null,
       fields: null,
@@ -35,47 +40,48 @@ export const action = async ({ request }: ActionArgs) => {
     });
   }
 
-  const fields = { email, password };
+  const fields = { firstName, email, password };
   const fieldErrors = {
+    firstName: validateFirstNameField(firstName),
     email: validateEmailField(email),
     password: validatePasswordField(password),
   };
-
   if (Object.values(fieldErrors).some(Boolean)) {
     return badRequest({ fieldErrors, fields, formError: null });
   }
 
-  const user = await verifyLogin(email, password);
-
-  if (!user) {
+  const existingUser = await getUserByEmail(email);
+  if (existingUser) {
     return badRequest({
-      fieldErrors,
+      fieldErrors: null,
       fields,
-      formError: "E-mail ou senha inválidos",
+      formError: "Já existe um usuário com esse e-mail.",
     });
   }
 
+  const user = await createUser({ firstName, email, password });
   return createUserSession({
     redirectTo,
-    remember: remember === "on" ? true : false,
+    remember: false,
     request,
     userId: user.id,
   });
 };
 
-export const meta: V2_MetaFunction = () => [
-  { title: "Login | Matheus Atrasou Hoje?" },
-];
+export const meta: V2_MetaFunction = () => [{ title: "Sign Up" }];
 
-export default function LoginPage() {
+export default function Join() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/";
+  const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData<typeof action>();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const firstNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (actionData?.fieldErrors?.email) {
+    if (actionData?.fieldErrors?.firstName) {
+      firstNameRef.current?.focus();
+    } else if (actionData?.fieldErrors?.email) {
       emailRef.current?.focus();
     } else if (actionData?.fieldErrors?.password) {
       passwordRef.current?.focus();
@@ -92,6 +98,41 @@ export default function LoginPage() {
         <Form method="post" className="space-y-6 mt-8">
           <div>
             <label
+              htmlFor="firstName"
+              className="block text-sm font-medium text-gray-300"
+            >
+              Nome
+            </label>
+            <div className="mt-1">
+              <input
+                ref={firstNameRef}
+                id="firstName"
+                required
+                autoFocus={true}
+                defaultValue={actionData?.fields?.firstName}
+                name="firstName"
+                type="text"
+                autoComplete="firstName"
+                aria-invalid={
+                  actionData?.fieldErrors?.firstName ? true : undefined
+                }
+                aria-describedby="first-name-error"
+                placeholder="Seu primeiro nome"
+                className="w-full rounded bg-zinc-900 border border-gray-800 px-2 py-1 text-lg aria-[invalid]:border-red-600 ring-amber-400/50 ring-offset-zinc-950  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+              {actionData?.fieldErrors?.firstName ? (
+                <div
+                  className="pt-1 text-red-600 mt-1 text-sm"
+                  id="first-name-error"
+                >
+                  {actionData.fieldErrors.firstName}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div>
+            <label
               htmlFor="email"
               className="block text-sm font-medium text-gray-300"
             >
@@ -102,7 +143,6 @@ export default function LoginPage() {
                 ref={emailRef}
                 id="email"
                 required
-                autoFocus={true}
                 defaultValue={actionData?.fields?.email}
                 name="email"
                 type="email"
@@ -159,44 +199,28 @@ export default function LoginPage() {
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <div>
             <Button type="submit" className="w-full">
-              Entrar
+              Criar conta
             </Button>
             {actionData?.formError ? (
               <div
-                className="pt-1 text-red-600 mt-1 text-sm"
+                className="pt-1 text-red-600 mt-1 text-sm text-center"
                 id="password-error"
               >
                 {actionData.formError}
               </div>
             ) : null}
           </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember"
-                name="remember"
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-              />
-              <label
-                htmlFor="remember"
-                className="ml-2 block text-sm text-zinc-50"
-              >
-                Lembrar de mim
-              </label>
-            </div>
-            <div className="text-center text-sm text-zinc-500">
-              Não tem uma conta?{" "}
+          <div className="flex items-center justify-center">
+            <div className="text-center text-sm text-gray-500">
+              Já possui uma conta?{" "}
               <Link
                 className="text-amber-400 underline"
                 to={{
-                  pathname: "/criar",
+                  pathname: "/login",
                   search: searchParams.toString(),
                 }}
-                prefetch="intent"
               >
-                Criar
+                Logar
               </Link>
             </div>
           </div>

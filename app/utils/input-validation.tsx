@@ -21,3 +21,15 @@ export function validatePasswordField(password: string) {
 
   return null;
 }
+
+export function validateFirstNameField(firstName: string) {
+  if (firstName.length === 0) {
+    return "O nome é obrigatório.";
+  }
+
+  if (firstName.length <= 3) {
+    return "O nome precisa ter mais que 3 caracteres.";
+  }
+
+  return null;
+}
