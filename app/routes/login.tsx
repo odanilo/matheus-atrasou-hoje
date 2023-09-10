@@ -2,11 +2,17 @@ import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import { Button } from "~/components/button";
 import { Logo } from "~/components/logo";
 
 import { verifyLogin } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { safeRedirect } from "~/utils";
+import {
+  validateEmailField,
+  validatePasswordField,
+} from "~/utils/input-validation";
+import { badRequest } from "~/utils/request.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
@@ -21,34 +27,32 @@ export const action = async ({ request }: ActionArgs) => {
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
   const remember = formData.get("remember");
 
-  if (!validateEmail(email)) {
-    return json(
-      { errors: { email: "Email is invalid", password: null } },
-      { status: 400 },
-    );
+  if (typeof email !== "string" || typeof password !== "string") {
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: "O formulário não foi enviado corretamente",
+    });
   }
 
-  if (typeof password !== "string" || password.length === 0) {
-    return json(
-      { errors: { email: null, password: "Password is required" } },
-      { status: 400 },
-    );
-  }
+  const fields = { email, password };
+  const fieldErrors = {
+    email: validateEmailField(email),
+    password: validatePasswordField(password),
+  };
 
-  if (password.length < 8) {
-    return json(
-      { errors: { email: null, password: "Password is too short" } },
-      { status: 400 },
-    );
+  if (Object.values(fieldErrors).some(Boolean)) {
+    return badRequest({ fieldErrors, fields, formError: null });
   }
 
   const user = await verifyLogin(email, password);
 
   if (!user) {
-    return json(
-      { errors: { email: "Invalid email or password", password: null } },
-      { status: 400 },
-    );
+    return badRequest({
+      fieldErrors,
+      fields,
+      formError: "E-mail ou senha inválidos",
+    });
   }
 
   return createUserSession({
@@ -59,7 +63,9 @@ export const action = async ({ request }: ActionArgs) => {
   });
 };
 
-export const meta: V2_MetaFunction = () => [{ title: "Login" }];
+export const meta: V2_MetaFunction = () => [
+  { title: "Login | Matheus Atrasou Hoje?" },
+];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -69,9 +75,9 @@ export default function LoginPage() {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (actionData?.errors?.email) {
+    if (actionData?.fieldErrors?.email) {
       emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
+    } else if (actionData?.fieldErrors?.password) {
       passwordRef.current?.focus();
     }
   }, [actionData]);
@@ -79,14 +85,17 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
-        <Logo />
-        <Form method="post" className="space-y-6">
+        <Link to="/" prefetch="intent">
+          <Logo />
+        </Link>
+
+        <Form method="post" className="space-y-6 mt-8">
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-300"
             >
-              Email address
+              Email
             </label>
             <div className="mt-1">
               <input
@@ -94,16 +103,21 @@ export default function LoginPage() {
                 id="email"
                 required
                 autoFocus={true}
+                defaultValue={actionData?.fields?.email}
                 name="email"
                 type="email"
                 autoComplete="email"
-                aria-invalid={actionData?.errors?.email ? true : undefined}
+                aria-invalid={actionData?.fieldErrors?.email ? true : undefined}
                 aria-describedby="email-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                placeholder="email@example.com"
+                className="w-full rounded bg-zinc-900 border border-gray-800 px-2 py-1 text-lg aria-[invalid]:border-red-600 ring-amber-400/50 ring-offset-zinc-950  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
-              {actionData?.errors?.email ? (
-                <div className="pt-1 text-red-700" id="email-error">
-                  {actionData.errors.email}
+              {actionData?.fieldErrors?.email ? (
+                <div
+                  className="pt-1 text-red-600 mt-1 text-sm"
+                  id="email-error"
+                >
+                  {actionData.fieldErrors.email}
                 </div>
               ) : null}
             </div>
@@ -112,61 +126,77 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-300"
             >
-              Password
+              Senha
             </label>
             <div className="mt-1">
               <input
                 id="password"
                 ref={passwordRef}
+                required
+                defaultValue={actionData?.fields?.password}
                 name="password"
                 type="password"
                 autoComplete="current-password"
-                aria-invalid={actionData?.errors?.password ? true : undefined}
+                aria-invalid={
+                  actionData?.fieldErrors?.password ? true : undefined
+                }
                 aria-describedby="password-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="w-full rounded bg-zinc-900 border border-gray-800 px-2 py-1 text-lg aria-[invalid]:border-red-600 ring-amber-400/50 ring-offset-zinc-950  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
-              {actionData?.errors?.password ? (
-                <div className="pt-1 text-red-700" id="password-error">
-                  {actionData.errors.password}
+              {actionData?.fieldErrors?.password ? (
+                <div
+                  className="pt-1 text-red-600 mt-1 text-sm"
+                  id="password-error"
+                >
+                  {actionData.fieldErrors.password}
                 </div>
               ) : null}
             </div>
           </div>
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Log in
-          </button>
+          <div>
+            <Button type="submit" className="w-full">
+              Entrar
+            </Button>
+            {actionData?.formError ? (
+              <div
+                className="pt-1 text-red-600 mt-1 text-sm"
+                id="password-error"
+              >
+                {actionData.formError}
+              </div>
+            ) : null}
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
                 id="remember"
                 name="remember"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
               />
               <label
                 htmlFor="remember"
-                className="ml-2 block text-sm text-gray-900"
+                className="ml-2 block text-sm text-zinc-50"
               >
-                Remember me
+                Lembrar de mim
               </label>
             </div>
-            <div className="text-center text-sm text-gray-500">
-              Don't have an account?{" "}
+            <div className="text-center text-sm text-zinc-500">
+              Não tem uma conta?{" "}
               <Link
-                className="text-blue-500 underline"
+                className="text-amber-400 underline"
                 to={{
                   pathname: "/join",
                   search: searchParams.toString(),
                 }}
+                prefetch="intent"
               >
-                Sign up
+                Criar
               </Link>
             </div>
           </div>
