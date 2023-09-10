@@ -1,9 +1,10 @@
 import { json } from "@remix-run/node";
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { Plus } from "lucide-react";
 import { Container } from "~/components/container";
-import { VomitIcon } from "~/components/icons";
+import type { DelayCardProps } from "~/components/delay-card";
+import { DelayCard } from "~/components/delay-card";
 import { Logo } from "~/components/logo";
 import { Nav } from "~/components/nav";
 import { getDelaysListItems } from "~/models/delay.server";
@@ -15,10 +16,16 @@ import { formatDelayDate } from "~/utils/misc";
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
   const delays = await getDelaysListItems();
-  const formattedDelays = delays.map((delay) => ({
-    ...delay,
-    createdAt: formatDelayDate(delay.createdAt),
-    hasVomited: delay.vomits.some((vomit) => vomit.userId === userId),
+  const formattedDelays = delays.map<DelayCardProps>((delay) => ({
+    body: delay.body,
+    id: delay.id,
+    title: delay.title,
+    user: {
+      firstName: delay.user.firstName,
+    },
+    vomitsAmount: delay.vomits.length,
+    formattedDate: formatDelayDate(delay.createdAt),
+    hasUserVomited: delay.vomits.some((vomit) => vomit.userId === userId),
   }));
 
   return json({ delays: formattedDelays });
@@ -74,48 +81,7 @@ export default function Index() {
           </header>
           <ul className="mt-4 grid gap-4 sm:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] lg:mt-6">
             {delays.map((delay) => (
-              <li
-                key={delay.id}
-                className="flex flex-col transition-transform will-change-transform hover:-translate-y-1"
-              >
-                <article className="flex flex-1 flex-col">
-                  <Link
-                    to="/"
-                    prefetch="intent"
-                    className="flex flex-1 gap-4 p-6 bg-zinc-900 rounded border border-dashed border-zinc-700"
-                  >
-                    <div className="flex shrink-0 rounded-full shadow items-center justify-center h-12 w-12 bg-amber-400">
-                      🤡
-                    </div>
-                    <div className="flex flex-col flex-1">
-                      <header className="text-sm text-zinc-500">
-                        <span className="font-semibold">
-                          {delay.user.firstName}
-                        </span>{" "}
-                        <span>• {delay.createdAt}</span>
-                      </header>
-                      <h2 className="text-amber-400">{delay.title}</h2>
-                      <div className="mt-2">{delay.body}</div>
-                      <footer className="flex mt-auto pt-4 justify-end text-zinc-500">
-                        <Form
-                          method="post"
-                          className="group hover:text-emerald-500"
-                        >
-                          <button
-                            type="submit"
-                            className="flex items-center gap-2"
-                          >
-                            <div className="w-10 h-10 shrink-0 p-2 rounded-full group-hover:bg-emerald-950">
-                              <VomitIcon />
-                            </div>
-                            <div>{delay.vomits.length}</div>
-                          </button>
-                        </Form>
-                      </footer>
-                    </div>
-                  </Link>
-                </article>
-              </li>
+              <DelayCard key={delay.id} delay={delay} />
             ))}
           </ul>
         </Container>
