@@ -22,7 +22,7 @@ export function Nav({
           <li>
             <Button
               as={Link}
-              to="atrasos/novo"
+              to="/atrasos/novo"
               prefetch="intent"
               variant="primary"
             >
