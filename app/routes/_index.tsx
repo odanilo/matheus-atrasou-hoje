@@ -3,6 +3,7 @@ import { Form, Link } from "@remix-run/react";
 import { Plus } from "lucide-react";
 import { Container } from "~/components/container";
 import { VomitIcon } from "~/components/icons";
+import { Logo } from "~/components/logo";
 import { Nav } from "~/components/nav";
 
 import { useOptionalUser } from "~/utils";
@@ -31,7 +32,7 @@ export default function Index() {
             </p>
           </div>
           <div className="md:flex-1">
-            <img src="./logo-matheus-atrasou.png" alt="Logo Matheus Atrasou" />
+            <Logo />
           </div>
         </Container>
       </header>
