@@ -33,3 +33,27 @@ export function validateFirstNameField(firstName: string) {
 
   return null;
 }
+
+export function validateTitleField(title: string) {
+  if (title.length === 0) {
+    return "O título é obrigatório.";
+  }
+
+  if (title.length <= 3) {
+    return "O título precisa ter mais que 3 caracteres.";
+  }
+
+  return null;
+}
+
+export function validateBodyField(body: string) {
+  if (body.length === 0) {
+    return "A descriçao é obrigatória.";
+  }
+
+  if (body.length <= 8) {
+    return "A descriçao precisa ter mais que 8 caracteres.";
+  }
+
+  return null;
+}
