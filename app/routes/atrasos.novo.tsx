@@ -1,5 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
+import type { V2_MetaFunction } from "@remix-run/react";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import { Button } from "~/components/button";
@@ -80,6 +81,10 @@ export const action = async ({ request }: ActionArgs) => {
 
   return redirect(`/atrasos/${newDelay.id}`);
 };
+
+export const meta: V2_MetaFunction = () => [
+  { title: "Criar Denúncia | Matheus Atrasou Hoje?" },
+];
 
 export default function CreateDelayRoute() {
   const actionData = useActionData<typeof action>();

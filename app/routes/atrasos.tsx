@@ -7,7 +7,7 @@ export default function AtrasosRoute() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="">
+      <header>
         <Nav userId={user?.id} />
       </header>
 

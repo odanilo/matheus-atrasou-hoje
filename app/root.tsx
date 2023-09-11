@@ -41,6 +41,40 @@ export default function App() {
         />
         <Meta />
         <Links />
+        <meta
+          name="description"
+          content="Quem é amigo de @matheussoe sabe que ele construiu toda uma reputação por atrasos. Esse site de incentivarmos que ele pare com isso."
+        />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://matheus-atrasou-hoje.fly.dev/" />
+        <meta
+          property="og:title"
+          content="Matheus Atrasou Hoje? — Denuncie quando nosso amigo atrasar"
+        />
+        <meta
+          property="og:description"
+          content="Quem é amigo de @matheussoe sabe que ele construiu toda uma reputação por atrasos. Esse site de incentivarmos que ele pare com isso."
+        />
+        <meta
+          property="og:image"
+          content="https://matheus-atrasou-hoje.fly.dev/social-matheus-atrasou-hoje.jpg"
+        />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://matheus-atrasou-hoje.fly.dev/" />
+        <meta
+          property="twitter:title"
+          content="Matheus Atrasou Hoje? — Denuncie quando nosso amigo atrasar"
+        />
+        <meta
+          property="twitter:description"
+          content="Quem é amigo de @matheussoe sabe que ele construiu toda uma reputação por atrasos. Esse site de incentivarmos que ele pare com isso."
+        />
+        <meta
+          property="twitter:image"
+          content="https://matheus-atrasou-hoje.fly.dev/social-matheus-atrasou-hoje.jpg"
+        />
       </head>
       <body className="h-full bg-zinc-950 text-zinc-50">
         <Outlet />
