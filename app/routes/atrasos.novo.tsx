@@ -6,8 +6,8 @@ import { useEffect, useRef } from "react";
 import { Button } from "~/components/button";
 import { Container } from "~/components/container";
 import { Spinner } from "~/components/spinner";
-import { createDelay, getLastDelay } from "~/models/delay.server";
-import { createStreak } from "~/models/streak.servet";
+import { createDelay } from "~/models/delay.server";
+import { createStreak } from "~/models/streak.server";
 import { requireUserId } from "~/session.server";
 import {
   validateBodyField,
@@ -64,14 +64,12 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  const lastDelay = await getLastDelay();
-  const lastDelayDate = lastDelay?.createdAt || new Date();
   const currentStreakDays = convertMillisecondsToDays(
-    new Date().getTime() - lastDelayDate.getTime(),
+    new Date().getTime() - newDelay.createdAt.getTime(),
   );
   const streak = await createStreak({
     days: currentStreakDays,
-    startDay: lastDelayDate,
+    startDay: newDelay.createdAt,
   });
   if (!streak) {
     throw new Response("Ocorreu um erro interno para criar uma streak.", {
