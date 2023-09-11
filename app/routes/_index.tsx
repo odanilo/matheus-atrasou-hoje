@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { Container } from "~/components/container";
 import type { DelayCardProps } from "~/components/delay-card";
 import { DelayCard } from "~/components/delay-card";
+import { Footer } from "~/components/footer";
 import { Logo } from "~/components/logo";
 import { Nav } from "~/components/nav";
 import { getDelaysListItems } from "~/models/delay.server";
@@ -57,7 +58,9 @@ export const loader = async ({ request }: LoaderArgs) => {
   });
 };
 
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+export const meta: V2_MetaFunction = () => [
+  { title: "Matheus Atrasou Hoje? — Denuncie quando nosso amigo atrasar" },
+];
 
 export default function Index() {
   const user = useOptionalUser();
@@ -114,6 +117,7 @@ export default function Index() {
           </ul>
         </Container>
       </main>
+      <Footer className="mt-10 lg:mt-14" />
     </>
   );
 }

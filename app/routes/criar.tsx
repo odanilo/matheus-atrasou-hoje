@@ -68,7 +68,9 @@ export const action = async ({ request }: ActionArgs) => {
   });
 };
 
-export const meta: V2_MetaFunction = () => [{ title: "Sign Up" }];
+export const meta: V2_MetaFunction = () => [
+  { title: "Criar conta | Matheus Atrasou Hoje?" },
+];
 
 export default function Join() {
   const [searchParams] = useSearchParams();
