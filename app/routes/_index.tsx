@@ -9,7 +9,7 @@ import { Footer } from "~/components/footer";
 import { Logo } from "~/components/logo";
 import { Nav } from "~/components/nav";
 import { getDelaysListItems } from "~/models/delay.server";
-import { getLongestStreak } from "~/models/streak.servet";
+import { getLongestStreak } from "~/models/streak.server";
 import { getUserId } from "~/session.server";
 
 import { useOptionalUser } from "~/utils";

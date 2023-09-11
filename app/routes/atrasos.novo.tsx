@@ -7,7 +7,7 @@ import { Button } from "~/components/button";
 import { Container } from "~/components/container";
 import { Spinner } from "~/components/spinner";
 import { createDelay, getLastDelay } from "~/models/delay.server";
-import { createStreak } from "~/models/streak.servet";
+import { createStreak } from "~/models/streak.server";
 import { requireUserId } from "~/session.server";
 import {
   validateBodyField,
