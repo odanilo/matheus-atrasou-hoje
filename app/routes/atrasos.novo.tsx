@@ -5,12 +5,14 @@ import { useEffect, useRef } from "react";
 import { Button } from "~/components/button";
 import { Container } from "~/components/container";
 import { Spinner } from "~/components/spinner";
-import { createDelay } from "~/models/delay.server";
+import { createDelay, getLastDelay } from "~/models/delay.server";
+import { createStreak } from "~/models/streak.servet";
 import { requireUserId } from "~/session.server";
 import {
   validateBodyField,
   validateTitleField,
 } from "~/utils/input-validation";
+import { convertMillisecondsToDays } from "~/utils/misc";
 import { badRequest } from "~/utils/request.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -59,6 +61,21 @@ export const action = async ({ request }: ActionArgs) => {
         statusText: errorMessage,
       },
     );
+  }
+
+  const lastDelay = await getLastDelay();
+  const lastDelayDate = lastDelay?.createdAt || new Date();
+  const currentStreakDays = convertMillisecondsToDays(
+    new Date().getTime() - lastDelayDate.getTime(),
+  );
+  const streak = await createStreak({
+    days: currentStreakDays,
+    startDay: lastDelayDate,
+  });
+  if (!streak) {
+    throw new Response("Ocorreu um erro interno para criar uma streak.", {
+      status: 500,
+    });
   }
 
   return redirect(`/atrasos/${newDelay.id}`);

@@ -52,6 +52,7 @@ async function seed() {
           body: data.body,
           title: data.title,
           userId: user.id,
+          createdAt: new Date("2023/09/06"),
         },
       }),
     ),
