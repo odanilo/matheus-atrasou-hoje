@@ -1,4 +1,4 @@
-app = "matheus-atrasou"
+app = "matheus-atrasou-hoje"
 primary_region="gru"
 kill_signal = "SIGINT"
 kill_timeout = 5

@@ -33,8 +33,8 @@ export const loader = async ({ request }: LoaderArgs) => {
     );
   }
 
-  const longestStreakDays = formatStreakDays(longestStreak.days);
-  const lastDelayDate = delays[0].createdAt;
+  const longestStreakDays = formatStreakDays(longestStreak[0]?.days || 0);
+  const lastDelayDate = delays[0]?.createdAt || new Date();
   const currentStreakDays = formatStreakDays(
     convertMillisecondsToDays(new Date().getTime() - lastDelayDate.getTime()),
   );
@@ -80,7 +80,7 @@ export default function Index() {
               atrasos
             </h2>
             <p className="text-lg">
-              Nosso recorde é de{" "}
+              Nosso antigo recorde é de{" "}
               <span className="font-semibold shadow-underline shadow-amber-950">
                 {longestStreakDays}
               </span>{" "}
