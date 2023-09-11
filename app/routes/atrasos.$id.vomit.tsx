@@ -28,12 +28,6 @@ export const action = async ({ request, params }: ActionArgs) => {
     });
   }
 
-  if (delay.user.id !== userId) {
-    throw new Response("Você não tem permissão para executar essa ação.", {
-      status: 405,
-    });
-  }
-
   if (intent === "add") {
     const vomit = await addVomit({ delayId: delay.id, userId });
     if (!vomit) {
