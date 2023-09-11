@@ -70,3 +70,7 @@ export function updateDelay({
     data: { title, body },
   });
 }
+
+export function getLastDelay() {
+  return prisma.delay.findFirst({ orderBy: { createdAt: "desc" } });
+}
