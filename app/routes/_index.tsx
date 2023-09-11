@@ -84,7 +84,11 @@ export default function Index() {
               <span className="font-semibold shadow-underline shadow-amber-950">
                 {longestStreakDays}
               </span>{" "}
-              🙄
+              e já tivemos um total de{" "}
+              <span className="font-semibold shadow-underline shadow-amber-950">
+                {delays.length}
+              </span>{" "}
+              {delays.length === 1 ? "denúncia" : "denúncias"} 🙄
             </p>
           </div>
           <div className="md:flex-1">
