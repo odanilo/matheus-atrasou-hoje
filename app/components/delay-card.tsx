@@ -3,6 +3,7 @@ import { Link, useFetcher } from "@remix-run/react";
 import { VomitIcon } from "./icons";
 import type { LiHTMLAttributes } from "react";
 import { cn } from "~/utils/misc";
+import { useOptionalUser } from "~/utils";
 
 export type DelayCardProps = Pick<Delay, "id" | "body" | "title"> & {
   formattedDate: string;
@@ -15,16 +16,19 @@ export function DelayCard({
   delay,
   ...props
 }: { delay: DelayCardProps } & LiHTMLAttributes<HTMLLIElement>) {
+  const user = useOptionalUser();
   const vomitFetcher = useFetcher();
   const isVomiting = Boolean(vomitFetcher.submission);
-  const hasUserVomited = isVomiting
-    ? vomitFetcher.submission?.formData?.get("willUserVomit") === "true"
-    : delay.hasUserVomited;
-  const vomitsAmount = isVomiting
-    ? hasUserVomited
-      ? Number(vomitFetcher.submission?.formData?.get("vomitAmount")) + 1
-      : Number(vomitFetcher.submission?.formData?.get("vomitAmount")) - 1
-    : delay.vomitsAmount;
+  const hasUserVomited =
+    isVomiting && user
+      ? vomitFetcher.submission?.formData?.get("willUserVomit") === "true"
+      : delay.hasUserVomited;
+  const vomitsAmount =
+    isVomiting && user
+      ? hasUserVomited && user
+        ? Number(vomitFetcher.submission?.formData?.get("vomitAmount")) + 1
+        : Number(vomitFetcher.submission?.formData?.get("vomitAmount")) - 1
+      : delay.vomitsAmount;
   const vomitActionClasses = cn("group hover:text-emerald-500", {
     "text-emerald-500 hover:text-emerald-400": hasUserVomited,
   });
