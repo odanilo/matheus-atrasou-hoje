@@ -1,5 +1,5 @@
 import type { Delay, User } from "@prisma/client";
-import { Form, Link } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 import { VomitIcon } from "./icons";
 import type { LiHTMLAttributes } from "react";
 import { cn } from "~/utils/misc";
@@ -18,6 +18,7 @@ export function DelayCard({
   const vomitActionClasses = cn("group hover:text-emerald-500", {
     "text-emerald-500 hover:text-emerald-400": delay.hasUserVomited,
   });
+  const vomit = useFetcher();
 
   return (
     <li
@@ -43,7 +44,7 @@ export function DelayCard({
           </div>
         </Link>
         <footer className="flex mt-auto justify-end text-zinc-500 p-6 pt-0">
-          <Form
+          <vomit.Form
             action={`/atrasos/${delay.id}/vomit`}
             method="post"
             className={vomitActionClasses}
@@ -59,7 +60,7 @@ export function DelayCard({
               </div>
               <div>{delay.vomitsAmount}</div>
             </button>
-          </Form>
+          </vomit.Form>
         </footer>
       </article>
     </li>
