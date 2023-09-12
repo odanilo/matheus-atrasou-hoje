@@ -1,5 +1,5 @@
-import type { ActionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { getDelayById } from "~/models/delay.server";
 import { addVomit, removeVomit } from "~/models/vomit.server";
@@ -29,6 +29,10 @@ export const action = async ({ request, params }: ActionArgs) => {
   }
 
   if (intent === "add") {
+    if (delay.vomits.some((vomit) => vomit.userId === userId)) {
+      return json({ delay });
+    }
+
     const vomit = await addVomit({ delayId: delay.id, userId });
     if (!vomit) {
       throw new Response(
@@ -38,7 +42,7 @@ export const action = async ({ request, params }: ActionArgs) => {
         },
       );
     }
-    return redirect("/");
+    return json({ delay });
   }
 
   if (intent === "remove") {
@@ -51,10 +55,15 @@ export const action = async ({ request, params }: ActionArgs) => {
         },
       );
     }
-    return redirect("/");
+    return json({ delay });
   }
 
-  return redirect("/");
+  return json({});
 };
 
-export const loader = async () => redirect("/");
+export const loader = ({ params }: LoaderArgs) => {
+  invariant(params.id, "O ID da denúnica não foi encontrado");
+  return redirect(`/atrasos/${params.id}`);
+};
+
+export default function VomitRoute() {}
