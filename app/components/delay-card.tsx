@@ -15,10 +15,19 @@ export function DelayCard({
   delay,
   ...props
 }: { delay: DelayCardProps } & LiHTMLAttributes<HTMLLIElement>) {
+  const vomitFetcher = useFetcher();
+  const isVomiting = Boolean(vomitFetcher.submission);
+  const hasUserVomited = isVomiting
+    ? vomitFetcher.submission?.formData?.get("willUserVomit") === "true"
+    : delay.hasUserVomited;
+  const vomitsAmount = isVomiting
+    ? hasUserVomited
+      ? Number(vomitFetcher.submission?.formData?.get("vomitAmount")) + 1
+      : Number(vomitFetcher.submission?.formData?.get("vomitAmount")) - 1
+    : delay.vomitsAmount;
   const vomitActionClasses = cn("group hover:text-emerald-500", {
-    "text-emerald-500 hover:text-emerald-400": delay.hasUserVomited,
+    "text-emerald-500 hover:text-emerald-400": hasUserVomited,
   });
-  const vomit = useFetcher();
 
   return (
     <li
@@ -44,23 +53,29 @@ export function DelayCard({
           </div>
         </Link>
         <footer className="flex mt-auto justify-end text-zinc-500 p-6 pt-0">
-          <vomit.Form
+          <vomitFetcher.Form
             action={`/atrasos/${delay.id}/vomit`}
             method="post"
             className={vomitActionClasses}
           >
+            <input
+              type="hidden"
+              name="willUserVomit"
+              value={(!hasUserVomited).toString()}
+            />
+            <input type="hidden" name="vomitAmount" value={vomitsAmount} />
             <button
               name="intent"
               type="submit"
-              value={delay.hasUserVomited ? "remove" : "add"}
+              value={hasUserVomited ? "remove" : "add"}
               className="flex items-center gap-2"
             >
               <div className="w-10 h-10 shrink-0 p-2 rounded-full group-hover:bg-emerald-950">
                 <VomitIcon />
               </div>
-              <div>{delay.vomitsAmount}</div>
+              <div>{vomitsAmount}</div>
             </button>
-          </vomit.Form>
+          </vomitFetcher.Form>
         </footer>
       </article>
     </li>
