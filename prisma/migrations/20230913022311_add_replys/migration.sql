@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE "Reply" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "body" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "userId" TEXT NOT NULL,
+    "delayId" TEXT NOT NULL,
+    CONSTRAINT "Reply_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Reply_delayId_fkey" FOREIGN KEY ("delayId") REFERENCES "Delay" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
