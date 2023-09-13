@@ -11,7 +11,7 @@ export default function AtrasosRoute() {
         <Nav userId={user?.id} />
       </header>
 
-      <main className="mt-8">
+      <main className="py-8 lg:py-12">
         <Outlet />
       </main>
     </div>
