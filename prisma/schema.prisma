@@ -18,6 +18,7 @@ model User {
   password Password?
   delays   Delay[]
   vomits   Vomit[]
+  replys   Reply[]
 }
 
 model Password {
@@ -39,6 +40,7 @@ model Delay {
   userId String
 
   vomits Vomit[]
+  reply  Reply[]
 }
 
 model Vomit {
@@ -60,4 +62,18 @@ model Streak {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Reply {
+  id   String @id @default(cuid())
+  body String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  delay   Delay  @relation(fields: [delayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  delayId String
 }

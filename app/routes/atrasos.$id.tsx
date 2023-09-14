@@ -20,7 +20,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export default function SingleDelayRoute() {
   return (
-    <Container className="space-y-4 max-w-xl">
+    <Container className="max-w-xl">
       <Outlet />
     </Container>
   );
