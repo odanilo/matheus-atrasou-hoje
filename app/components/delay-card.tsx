@@ -4,12 +4,15 @@ import { VomitIcon } from "./icons";
 import type { LiHTMLAttributes } from "react";
 import { cn } from "~/utils/misc";
 import { useOptionalUser } from "~/utils";
+import { BadgeCheck } from "lucide-react";
 
 export type DelayCardProps = Pick<Delay, "id" | "body" | "title"> & {
   formattedDate: string;
   user: Pick<User, "firstName">;
   vomitsAmount: number;
   hasUserVomited: boolean;
+  isDefendant?: boolean;
+  hasContestation?: boolean;
 };
 
 export function DelayCard({
@@ -44,19 +47,29 @@ export function DelayCard({
           prefetch="intent"
           className="flex flex-1 gap-4 p-6"
         >
-          <div className="flex shrink-0 rounded-full shadow items-center justify-center h-12 w-12 bg-amber-400">
+          <div className="flex shrink-0 rounded-full shadow items-center justify-center h-12 w-12 bg-zinc-800">
             🤬
           </div>
           <div className="flex flex-col flex-1">
             <header className="text-sm text-zinc-500">
-              <span className="font-semibold">{delay.user.firstName}</span>{" "}
+              <span className="font-semibold text-amber-400 inline-flex items-center gap-2">
+                {delay.user.firstName}{" "}
+                {delay.isDefendant ? (
+                  <BadgeCheck className="text-cyan-400" size={16} />
+                ) : null}
+              </span>{" "}
               <span>• {delay.formattedDate}</span>
             </header>
-            <h2 className="text-amber-400">{delay.title}</h2>
-            <div className="mt-2">{delay.body}</div>
+            <h2 className="mt-1 leading-tight">{delay.title}</h2>
+            <div className="mt-2 whitespace-pre-wrap">{delay.body}</div>
           </div>
         </Link>
         <footer className="flex mt-auto justify-end text-zinc-500 p-6 pt-0">
+          {delay.hasContestation ? (
+            <div className="self-center mr-auto text-xs font-medium px-2.5 py-0.5 rounded bg-red-400/40 text-zinc-50">
+              Contestada
+            </div>
+          ) : null}
           <vomitFetcher.Form
             action={`/atrasos/${delay.id}/vomit`}
             method="post"
