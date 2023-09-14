@@ -53,7 +53,7 @@ export function DelayCard({
               <span>• {delay.formattedDate}</span>
             </header>
             <h2 className="text-amber-400">{delay.title}</h2>
-            <div className="mt-2">{delay.body}</div>
+            <div className="mt-2 whitespace-pre-wrap">{delay.body}</div>
           </div>
         </Link>
         <footer className="flex mt-auto justify-end text-zinc-500 p-6 pt-0">

@@ -12,6 +12,7 @@ export function getDelaysListItems() {
         select: { firstName: true, id: true },
       },
       vomits: { select: { id: true, userId: true } },
+      reply: { select: { user: { select: { firstName: true } } } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -43,6 +44,17 @@ export function getDelayById(id: Delay["id"]) {
         select: {
           id: true,
           userId: true,
+        },
+      },
+      reply: {
+        select: {
+          body: true,
+          createdAt: true,
+          id: true,
+          user: { select: { firstName: true } },
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       },
     },

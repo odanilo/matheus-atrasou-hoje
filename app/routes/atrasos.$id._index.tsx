@@ -1,5 +1,6 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs, V2_MetaArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import type { V2_MetaFunction } from "@remix-run/react";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { Edit2Icon, MessageCircle, Trash2Icon } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -10,8 +11,54 @@ import { DelayCard } from "~/components/delay-card";
 import type { ReplyProps } from "~/components/reply";
 import { ReplyEmptyList, ReplyList } from "~/components/reply";
 import { getDelayById } from "~/models/delay.server";
-import { getUserId } from "~/session.server";
+import { createReply } from "~/models/reply.server";
+import { getUserId, requireUserId } from "~/session.server";
+import { validateBodyField } from "~/utils/input-validation";
 import { formatDelayDate } from "~/utils/misc";
+import { badRequest } from "~/utils/request.server";
+
+export const action = async ({ request, params }: ActionArgs) => {
+  const userId = await requireUserId(request);
+  invariant(params.id, "O ID da denúnica não foi encontrado");
+  const form = await request.formData();
+  const body = form.get("body");
+  if (typeof body !== "string") {
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: "O formulário não foi enviado corretamente",
+    });
+  }
+  const fields = { body };
+  const fieldErrors = {
+    body: validateBodyField(body),
+  };
+  if (Object.values(fieldErrors).some(Boolean)) {
+    return badRequest({
+      fields,
+      fieldErrors,
+      formError: null,
+    });
+  }
+  const newReply = await createReply({ body, delayId: params.id, userId });
+  if (!newReply) {
+    const errorMessage =
+      "Ocorreu um erro interno no momento da criação da sua resposta, por favor tente novamente.";
+    return json(
+      {
+        fields,
+        fieldErrors,
+        formError: errorMessage,
+      },
+      {
+        status: 500,
+        statusText: errorMessage,
+      },
+    );
+  }
+
+  return json({ fields: { body: "" }, fieldErrors: null, formError: null });
+};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const userId = await getUserId(request);
@@ -34,32 +81,37 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     hasUserVomited: delay.vomits.some((vomit) => vomit.userId === userId),
   };
 
-  return json({ delay: formattedDelay, isOwner: delay.user.id === userId });
+  const replys: ReplyProps[] = delay.reply.map((reply) => {
+    return {
+      body: reply.body,
+      formattedDate: formatDelayDate(reply.createdAt),
+      id: reply.id,
+      user: {
+        firstName: reply.user.firstName,
+      },
+    };
+  });
+
+  return json({
+    delay: formattedDelay,
+    isOwner: delay.user.id === userId,
+    replys,
+  });
 };
 
+export const meta: V2_MetaFunction<typeof loader> = ({ data }: V2_MetaArgs) => [
+  { title: `${data.delay.title} | Denúncia | Matheus Atrasou Hoje?` },
+];
+
 export default function AtrasoIndexRoute() {
-  const { delay, isOwner } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const { delay, isOwner, replys } = useLoaderData<typeof loader>();
+  const formReplyRef = useRef<HTMLFormElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
-  const actionData = useActionData();
-  const replys: ReplyProps[] = [
-    {
-      id: "1#",
-      user: { firstName: "Michael Gough" },
-      body: "Very straight-to-point article. Really worth time reading. Thank you! But tools are just the instruments for the UX designers. The knowledge of the design tools are as important as the creation of the design strategy.",
-      formattedDate: new Date().toLocaleString("PT-BR"),
-    },
-    {
-      id: "2#",
-      user: { firstName: "Jese Leos" },
-      body: "Much appreciated! Glad you liked it ☺️",
-      formattedDate: new Date().toLocaleString("PT-BR"),
-    },
-  ];
 
   useEffect(() => {
-    if (actionData?.fieldErrors?.body) {
-      bodyRef.current?.focus();
-    }
+    formReplyRef.current?.reset();
+    bodyRef.current?.focus();
   }, [actionData]);
 
   return (
@@ -94,7 +146,7 @@ export default function AtrasoIndexRoute() {
           <h2 className="text-2xl font-semibold">
             Discussão ({replys.length})
           </h2>
-          <Form method="post" className="mt-4">
+          <Form ref={formReplyRef} method="post" className="mt-4">
             <fieldset>
               <label
                 htmlFor="body"

@@ -29,7 +29,9 @@ export function ReplyList({ replys, className, ...props }: ReplyListProps) {
                 {reply.formattedDate}
               </time>
             </header>
-            <main className="mt-2 leading-relaxed">{reply.body}</main>
+            <main className="mt-2 leading-relaxed whitespace-pre-wrap">
+              {reply.body}
+            </main>
           </article>
         </li>
       ))}
