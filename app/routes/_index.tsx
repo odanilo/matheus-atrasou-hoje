@@ -14,9 +14,9 @@ import { getUserId } from "~/session.server";
 
 import { useOptionalUser } from "~/utils";
 import {
-  convertMillisecondsToDays,
+  convertDaysToMilliseconds,
   formatDelayDate,
-  formatStreakDays,
+  formatMillisecondsToStreakDays,
 } from "~/utils/misc";
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -33,10 +33,17 @@ export const loader = async ({ request }: LoaderArgs) => {
     );
   }
 
-  const longestStreakDays = formatStreakDays(longestStreak[0]?.days || 0);
   const lastDelayDate = delays[0]?.createdAt || new Date();
-  const currentStreakDays = formatStreakDays(
-    convertMillisecondsToDays(new Date().getTime() - lastDelayDate.getTime()),
+  const currentStreakInMilliseconds =
+    new Date().getTime() - lastDelayDate.getTime();
+  const longestStreakInMilliseconds = convertDaysToMilliseconds(
+    longestStreak[0].days,
+  );
+  const longestStreakDays = formatMillisecondsToStreakDays(
+    Math.max(currentStreakInMilliseconds, longestStreakInMilliseconds) || 0,
+  );
+  const currentStreakDays = formatMillisecondsToStreakDays(
+    currentStreakInMilliseconds,
   );
 
   const formattedDelays = delays.map<DelayCardProps>((delay) => ({
@@ -84,7 +91,7 @@ export default function Index() {
               atrasos
             </h2>
             <p className="text-lg">
-              Nosso antigo recorde é de{" "}
+              Nosso recorde é de{" "}
               <span className="font-semibold shadow-underline shadow-amber-950">
                 {longestStreakDays}
               </span>{" "}
