@@ -1,5 +1,6 @@
 import type { Reply, User } from "@prisma/client";
-import { Frown } from "lucide-react";
+import { Form } from "@remix-run/react";
+import { Frown, Trash2Icon } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "~/utils/misc";
 
@@ -7,6 +8,7 @@ export type ReplyProps = {
   formattedDate: string;
   user: { firstName: User["firstName"] };
   isOptmistic?: boolean;
+  isOwner?: boolean;
 } & Pick<Reply, "body" | "id">;
 
 type ReplyListProps = {
@@ -16,7 +18,7 @@ type ReplyListProps = {
 export function ReplyList({ replys, className, ...props }: ReplyListProps) {
   return (
     <ul {...props} className={cn("flex flex-col gap-6", className)}>
-      {replys.map(({ isOptmistic = false, ...reply }) => (
+      {replys.map(({ isOwner = false, isOptmistic = false, ...reply }) => (
         <li
           key={reply.id}
           className={cn(
@@ -32,6 +34,17 @@ export function ReplyList({ replys, className, ...props }: ReplyListProps) {
               <time className="text-sm text-zinc-600 ml-2">
                 {reply.formattedDate}
               </time>
+              {isOwner ? (
+                <Form
+                  method="post"
+                  className="text-sm pl-2 ml-auto text-red-600 hover:text-red-500"
+                >
+                  <input type="hidden" name="replyId" value={reply.id} />
+                  <button type="submit" name="intent" value="deleteReply">
+                    <Trash2Icon size={16} />
+                  </button>
+                </Form>
+              ) : null}
             </header>
             <main className="mt-2 leading-relaxed whitespace-pre-wrap">
               {reply.body}

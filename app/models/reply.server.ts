@@ -14,3 +14,11 @@ export function createReply({
     },
   });
 }
+
+export function getReplyById(replyId: Reply["id"]) {
+  return prisma.reply.findUnique({ where: { id: replyId } });
+}
+
+export function deleteReplyById({ id, userId }: Pick<Reply, "id" | "userId">) {
+  return prisma.reply.deleteMany({ where: { id, userId } });
+}

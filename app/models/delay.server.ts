@@ -51,7 +51,7 @@ export function getDelayById(id: Delay["id"]) {
           body: true,
           createdAt: true,
           id: true,
-          user: { select: { firstName: true } },
+          user: { select: { id: true, firstName: true } },
         },
         orderBy: {
           createdAt: "desc",

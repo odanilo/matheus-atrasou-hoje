@@ -17,7 +17,11 @@ import { DelayCard } from "~/components/delay-card";
 import type { ReplyProps } from "~/components/reply";
 import { ReplyEmptyList, ReplyList } from "~/components/reply";
 import { getDelayById } from "~/models/delay.server";
-import { createReply } from "~/models/reply.server";
+import {
+  createReply,
+  deleteReplyById,
+  getReplyById,
+} from "~/models/reply.server";
 import { getUserId, requireUserId } from "~/session.server";
 import { useOptionalUser } from "~/utils";
 import { validateBodyField } from "~/utils/input-validation";
@@ -28,6 +32,33 @@ export const action = async ({ request, params }: ActionArgs) => {
   const userId = await requireUserId(request);
   invariant(params.id, "O ID da denúnica não foi encontrado");
   const form = await request.formData();
+  const intent = form.get("intent");
+
+  if (intent === "deleteReply") {
+    const replyId = form.get("replyId");
+    if (typeof replyId !== "string") {
+      return new Response("O formulário não foi enviado corretamente", {
+        status: 400,
+      });
+    }
+
+    const reply = await getReplyById(replyId);
+    if (!reply) {
+      return new Response(`Não encontramos uma resposta com id ${replyId}.`, {
+        status: 400,
+      });
+    }
+
+    if (reply.userId !== userId) {
+      return new Response("Você não tem autorização para fazer essa ação.", {
+        status: 401,
+      });
+    }
+
+    await deleteReplyById({ id: reply.id, userId });
+    return new Response("Deletado com sucesso", { status: 204 });
+  }
+
   const body = form.get("body");
   if (typeof body !== "string") {
     return badRequest({
@@ -96,6 +127,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       user: {
         firstName: reply.user.firstName,
       },
+      isOwner: reply.user.id === userId,
     };
   });
 
@@ -115,6 +147,9 @@ const addReplyToList = (newReply: ReplyProps, replys: ReplyProps[]) => [
   ...replys,
 ];
 
+const deleteReplyToList = (id: ReplyProps["id"], replys: ReplyProps[]) =>
+  replys.filter((reply) => reply.id !== id);
+
 export default function AtrasoIndexRoute() {
   const user = useOptionalUser();
   const actionData = useActionData<typeof action>();
@@ -122,29 +157,44 @@ export default function AtrasoIndexRoute() {
   const formReplyRef = useRef<HTMLFormElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const navigation = useNavigation();
+  const navigationData = navigation.formData;
   const isReplying =
     navigation.state === "submitting" &&
-    navigation.formData?.get("intent") === "reply";
+    navigationData?.get("intent") === "reply";
+  const isDeletingReply =
+    navigation.state === "submitting" &&
+    navigationData?.get("intent") === "deleteReply";
   const isReloading =
     navigation.state === "loading" &&
-    navigation.formData != null &&
+    navigationData != null &&
     navigation.formAction === navigation.location.pathname + "?index";
-  const navigationData = navigation.formData;
-  const optmisticReplys =
-    isReplying || isReloading
-      ? addReplyToList(
-          {
-            body: String(navigationData?.get("body")),
-            formattedDate: formatDelayDate(new Date()),
-            id: String(navigationData?.get("body")),
-            user: {
-              firstName: String(user?.firstName),
-            },
-            isOptmistic: true,
-          },
-          replys,
-        )
-      : replys;
+  let optmisticReplys = replys;
+
+  if (
+    (isReloading && navigationData?.get("intent") === "reply") ||
+    isReplying
+  ) {
+    optmisticReplys = addReplyToList(
+      {
+        body: String(navigationData?.get("body")),
+        formattedDate: formatDelayDate(new Date()),
+        id: String(navigationData?.get("body")),
+        user: {
+          firstName: String(user?.firstName),
+        },
+        isOptmistic: true,
+      },
+      replys,
+    );
+  }
+
+  if (
+    (isReloading && navigationData?.get("intent") === "deleteReply") ||
+    isDeletingReply
+  ) {
+    const replyId = String(navigationData?.get("replyId"));
+    optmisticReplys = deleteReplyToList(replyId, replys);
+  }
 
   useEffect(() => {
     formReplyRef.current?.reset();
