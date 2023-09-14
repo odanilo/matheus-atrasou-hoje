@@ -21,16 +21,22 @@ export function DelayCard({
 }: { delay: DelayCardProps } & LiHTMLAttributes<HTMLLIElement>) {
   const user = useOptionalUser();
   const vomitFetcher = useFetcher();
-  const isVomiting = Boolean(vomitFetcher.submission);
+  const isActionReload =
+    vomitFetcher.state === "loading" &&
+    vomitFetcher.formMethod != null &&
+    vomitFetcher.data != null;
+  const isVomiting = Boolean(
+    vomitFetcher.state === "submitting" || isActionReload,
+  );
   const hasUserVomited =
     isVomiting && user
-      ? vomitFetcher.submission?.formData?.get("willUserVomit") === "true"
+      ? vomitFetcher.formData?.get("willUserVomit") === "true"
       : delay.hasUserVomited;
   const vomitsAmount =
     isVomiting && user
       ? hasUserVomited && user
-        ? Number(vomitFetcher.submission?.formData?.get("vomitAmount")) + 1
-        : Number(vomitFetcher.submission?.formData?.get("vomitAmount")) - 1
+        ? Number(vomitFetcher.formData?.get("vomitAmount")) + 1
+        : Number(vomitFetcher.formData?.get("vomitAmount")) - 1
       : delay.vomitsAmount;
   const vomitActionClasses = cn("group hover:text-emerald-500", {
     "text-emerald-500 hover:text-emerald-400": hasUserVomited,
@@ -52,7 +58,7 @@ export function DelayCard({
           </div>
           <div className="flex flex-col flex-1">
             <header className="text-sm text-zinc-500">
-              <span className="font-semibold text-amber-400 inline-flex items-center gap-2">
+              <span className="font-semibold text-amber-400 inline-flex items-center gap-1.5">
                 {delay.user.firstName}{" "}
                 {delay.isDefendant ? (
                   <BadgeCheck className="text-cyan-400" size={16} />

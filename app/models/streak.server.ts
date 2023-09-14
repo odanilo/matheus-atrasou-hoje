@@ -17,5 +17,9 @@ export function createStreak({
 }
 
 export function getLongestStreak() {
-  return prisma.streak.findMany({ take: 1, orderBy: { days: "desc" } });
+  return prisma.streak.findMany({
+    take: 1,
+    select: { days: true, startDay: true, endDay: true },
+    orderBy: { days: "desc" },
+  });
 }
