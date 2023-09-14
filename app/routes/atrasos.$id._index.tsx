@@ -120,6 +120,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     hasContestation: delay.reply.some(
       (reply) => reply.user.email === process.env.DEFENDANT_USER_EMAIL,
     ),
+    isDefendant: delay.user.email === process.env.DEFENDANT_USER_EMAIL,
   };
 
   const replys: ReplyProps[] = delay.reply.map((reply) => {
@@ -286,7 +287,7 @@ export default function AtrasoIndexRoute() {
             </Button>
           </Form>
 
-          {replys.length > 0 ? (
+          {optmisticReplys.length > 0 ? (
             <ReplyList replys={optmisticReplys} className="mt-10" />
           ) : (
             <ReplyEmptyList className="mt-12" />
