@@ -287,7 +287,7 @@ export default function AtrasoIndexRoute() {
             </Button>
           </Form>
 
-          {replys.length > 0 ? (
+          {optmisticReplys.length > 0 ? (
             <ReplyList replys={optmisticReplys} className="mt-10" />
           ) : (
             <ReplyEmptyList className="mt-12" />
