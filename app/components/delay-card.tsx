@@ -58,7 +58,7 @@ export function DelayCard({
           </div>
           <div className="flex flex-col flex-1">
             <header className="text-sm text-zinc-500">
-              <span className="font-semibold text-amber-400 inline-flex items-center gap-2">
+              <span className="font-semibold text-amber-400 inline-flex items-center gap-1.5">
                 {delay.user.firstName}{" "}
                 {delay.isDefendant ? (
                   <BadgeCheck className="text-cyan-400" size={16} />
