@@ -6,6 +6,7 @@ import { cn } from "~/utils/misc";
 export type ReplyProps = {
   formattedDate: string;
   user: { firstName: User["firstName"] };
+  isOptmistic?: boolean;
 } & Pick<Reply, "body" | "id">;
 
 type ReplyListProps = {
@@ -15,10 +16,13 @@ type ReplyListProps = {
 export function ReplyList({ replys, className, ...props }: ReplyListProps) {
   return (
     <ul {...props} className={cn("flex flex-col gap-6", className)}>
-      {replys.map((reply) => (
+      {replys.map(({ isOptmistic = false, ...reply }) => (
         <li
           key={reply.id}
-          className="pt-6 border-t border-zinc-900 first:pt-0 first:border-0"
+          className={cn(
+            "pt-6 border-t border-zinc-900 first:pt-0 first:border-0",
+            { "animate-pulse": isOptmistic },
+          )}
         >
           <article>
             <header className="flex items-center">

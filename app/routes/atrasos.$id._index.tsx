@@ -1,7 +1,13 @@
 import type { ActionArgs, LoaderArgs, V2_MetaArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { V2_MetaFunction } from "@remix-run/react";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import { Edit2Icon, MessageCircle, Trash2Icon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
@@ -13,6 +19,7 @@ import { ReplyEmptyList, ReplyList } from "~/components/reply";
 import { getDelayById } from "~/models/delay.server";
 import { createReply } from "~/models/reply.server";
 import { getUserId, requireUserId } from "~/session.server";
+import { useOptionalUser } from "~/utils";
 import { validateBodyField } from "~/utils/input-validation";
 import { formatDelayDate } from "~/utils/misc";
 import { badRequest } from "~/utils/request.server";
@@ -103,11 +110,41 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }: V2_MetaArgs) => [
   { title: `${data.delay.title} | Denúncia | Matheus Atrasou Hoje?` },
 ];
 
+const addReplyToList = (newReply: ReplyProps, replys: ReplyProps[]) => [
+  newReply,
+  ...replys,
+];
+
 export default function AtrasoIndexRoute() {
+  const user = useOptionalUser();
   const actionData = useActionData<typeof action>();
   const { delay, isOwner, replys } = useLoaderData<typeof loader>();
   const formReplyRef = useRef<HTMLFormElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const navigation = useNavigation();
+  const isReplying =
+    navigation.state === "submitting" &&
+    navigation.formData?.get("intent") === "reply";
+  const isReloading =
+    navigation.state === "loading" &&
+    navigation.formData != null &&
+    navigation.formAction === navigation.location.pathname + "?index";
+  const navigationData = navigation.formData;
+  const optmisticReplys =
+    isReplying || isReloading
+      ? addReplyToList(
+          {
+            body: String(navigationData?.get("body")),
+            formattedDate: formatDelayDate(new Date()),
+            id: String(navigationData?.get("body")),
+            user: {
+              firstName: String(user?.firstName),
+            },
+            isOptmistic: true,
+          },
+          replys,
+        )
+      : replys;
 
   useEffect(() => {
     formReplyRef.current?.reset();
@@ -144,7 +181,7 @@ export default function AtrasoIndexRoute() {
       <section className="mt-10 pt-8 border-t border-zinc-900/75 lg:mt-12 lg:pt-10">
         <header>
           <h2 className="text-2xl font-semibold">
-            Discussão ({replys.length})
+            Discussão ({optmisticReplys.length})
           </h2>
           <Form ref={formReplyRef} method="post" className="mt-4">
             <fieldset>
@@ -181,14 +218,22 @@ export default function AtrasoIndexRoute() {
                 ) : null}
               </div>
             </fieldset>
-            <Button type="submit" className="gap-1 mt-2">
-              <span>Adicionar comentário</span>
+            <Button
+              type="submit"
+              name="intent"
+              value="reply"
+              className="gap-1 mt-2"
+              disabled={isReplying}
+            >
+              <span>
+                {isReplying ? "Adicionando comentário" : "Adicionar comentário"}
+              </span>
               <MessageCircle />
             </Button>
           </Form>
 
           {replys.length > 0 ? (
-            <ReplyList replys={replys} className="mt-10" />
+            <ReplyList replys={optmisticReplys} className="mt-10" />
           ) : (
             <ReplyEmptyList className="mt-12" />
           )}
