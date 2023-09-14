@@ -1,7 +1,8 @@
 import { json } from "@remix-run/node";
 import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { Plus } from "lucide-react";
+import { HeartCrack, Plus } from "lucide-react";
+import { Button } from "~/components/button";
 import { Container } from "~/components/container";
 import type { DelayCardProps } from "~/components/delay-card";
 import { DelayCard } from "~/components/delay-card";
@@ -23,7 +24,6 @@ export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
   const delays = await getDelaysListItems();
   const longestStreak = await getLongestStreak();
-
   if (!longestStreak) {
     throw new Response(
       "Ocorreu um erro interno para encontrar nossa maior streak.",
@@ -125,11 +125,23 @@ export default function Index() {
               <Plus size={20} />
             </Link>
           </header>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] lg:mt-6">
-            {delays.map((delay) => (
-              <DelayCard key={delay.id} delay={delay} />
-            ))}
-          </ul>
+          {delays.length < 1 ? (
+            <section className="flex flex-col p-8 gap-4 justify-center items-center text-zinc-600">
+              <HeartCrack size={40} />
+              <h2 className="text-2xl text-zinc-300">
+                Não temos nenhuma denúncia para mostrar ainda!
+              </h2>
+              <Button as={Link} to="/atrasos/novo">
+                Faça a nossa primeira denúncia!
+              </Button>
+            </section>
+          ) : (
+            <ul className="mt-4 grid gap-4 sm:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] lg:mt-6">
+              {delays.map((delay) => (
+                <DelayCard key={delay.id} delay={delay} />
+              ))}
+            </ul>
+          )}
         </Container>
       </main>
       <Footer className="mt-10 lg:mt-14" />
