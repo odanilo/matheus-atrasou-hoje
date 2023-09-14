@@ -49,6 +49,10 @@ export const loader = async ({ request }: LoaderArgs) => {
     vomitsAmount: delay.vomits.length,
     formattedDate: formatDelayDate(delay.createdAt),
     hasUserVomited: delay.vomits.some((vomit) => vomit.userId === userId),
+    hasContestation: delay.reply.some(
+      (reply) => reply.user.email === process.env.DEFENDANT_USER_EMAIL,
+    ),
+    isDefendant: delay.user.email === process.env.DEFENDANT_USER_EMAIL,
   }));
 
   return json({

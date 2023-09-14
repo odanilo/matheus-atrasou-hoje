@@ -117,6 +117,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     vomitsAmount: delay.vomits.length,
     formattedDate: formatDelayDate(delay.createdAt),
     hasUserVomited: delay.vomits.some((vomit) => vomit.userId === userId),
+    hasContestation: delay.reply.some(
+      (reply) => reply.user.email === process.env.DEFENDANT_USER_EMAIL,
+    ),
   };
 
   const replys: ReplyProps[] = delay.reply.map((reply) => {
@@ -128,6 +131,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
         firstName: reply.user.firstName,
       },
       isOwner: reply.user.id === userId,
+      isDefendant: reply.user.email === process.env.DEFENDANT_USER_EMAIL,
     };
   });
 

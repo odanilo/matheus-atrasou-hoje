@@ -1,6 +1,6 @@
 import type { Reply, User } from "@prisma/client";
 import { Form } from "@remix-run/react";
-import { Frown, Trash2Icon } from "lucide-react";
+import { BadgeCheck, Frown, Trash2Icon } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { cn } from "~/utils/misc";
 
@@ -9,6 +9,7 @@ export type ReplyProps = {
   user: { firstName: User["firstName"] };
   isOptmistic?: boolean;
   isOwner?: boolean;
+  isDefendant?: boolean;
 } & Pick<Reply, "body" | "id">;
 
 type ReplyListProps = {
@@ -28,11 +29,14 @@ export function ReplyList({ replys, className, ...props }: ReplyListProps) {
         >
           <article>
             <header className="flex items-center">
-              <address className="not-italic text-sm text-amber-400  font-semibold">
-                {reply.user.firstName}
+              <address className="flex gap-2 items-center not-italic text-sm text-amber-400 font-semibold">
+                <span>{reply.user.firstName}</span>
+                {reply.isDefendant ? (
+                  <BadgeCheck className="text-cyan-400" size={16} />
+                ) : null}
               </address>
               <time className="text-sm text-zinc-600 ml-2">
-                {reply.formattedDate}
+                • {reply.formattedDate}
               </time>
               {isOwner ? (
                 <Form
