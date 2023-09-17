@@ -37,7 +37,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   const currentStreakInMilliseconds =
     new Date().getTime() - lastDelayDate.getTime();
   const longestStreakInMilliseconds = convertDaysToMilliseconds(
-    longestStreak[0].days,
+    longestStreak[0]?.days || 0,
   );
   const longestStreakDays = formatMillisecondsToStreakDays(
     Math.max(currentStreakInMilliseconds, longestStreakInMilliseconds) || 0,

@@ -9,7 +9,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useRouteError,
 } from "@remix-run/react";
 import { ServerCrash } from "lucide-react";
 import type { PropsWithChildren } from "react";
@@ -17,6 +16,7 @@ import type { PropsWithChildren } from "react";
 import { getUser } from "~/session.server";
 import stylesheet from "~/tailwind.css";
 import { Logo } from "./components/logo";
+import { GeneralErrorBoundary } from "./components/error-boundary";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -106,8 +106,6 @@ export default function App() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-  const errorMessage = error instanceof Error ? error.message : "Unknown error";
   return (
     <Document>
       <div className="h-full w-full flex items-center justify-center">
@@ -124,9 +122,8 @@ export function ErrorBoundary() {
               e reportar esse erro.
             </p>
           </header>
-          <main className="flex flex-col gap-1 rounded-lg p-6 bg-red-600/20">
-            <h1>App Error</h1>
-            <pre>{errorMessage}</pre>
+          <main>
+            <GeneralErrorBoundary />
           </main>
           <footer className="flex justify-center">
             <Link to="/" prefetch="intent" className="max-w-[250px]">
