@@ -6,6 +6,7 @@ import { Button } from "~/components/button";
 import { Container } from "~/components/container";
 import type { DelayCardProps } from "~/components/delay-card";
 import { DelayCard } from "~/components/delay-card";
+import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { Footer } from "~/components/footer";
 import { Logo } from "~/components/logo";
 import { Nav } from "~/components/nav";
@@ -37,7 +38,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   const currentStreakInMilliseconds =
     new Date().getTime() - lastDelayDate.getTime();
   const longestStreakInMilliseconds = convertDaysToMilliseconds(
-    longestStreak[0].days,
+    longestStreak[0]?.days || 0,
   );
   const longestStreakDays = formatMillisecondsToStreakDays(
     Math.max(currentStreakInMilliseconds, longestStreakInMilliseconds) || 0,
@@ -146,5 +147,18 @@ export default function Index() {
       </main>
       <Footer className="mt-10 lg:mt-14" />
     </>
+  );
+}
+
+export function ErrorBoundary() {
+  const user = useOptionalUser();
+  return (
+    <div className="flex flex-col min-h-full">
+      <Nav userId={user?.id} hasLogo={false} />
+      <Container className="flex flex-1 flex-col items-center justify-center p-8">
+        <GeneralErrorBoundary />
+      </Container>
+      <Footer />
+    </div>
   );
 }

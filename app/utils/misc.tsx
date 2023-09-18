@@ -7,7 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDelayDate(date: Delay["createdAt"]) {
-  return new Intl.DateTimeFormat("pt-BR").format(date);
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Bahia",
+  }).format(date);
 }
 
 export function convertMillisecondsToDays(milliseconds: number) {
@@ -26,4 +28,18 @@ export function formatStreakDays(days: Streak["days"]) {
 
 export function formatMillisecondsToStreakDays(milliseconds: number) {
   return formatStreakDays(convertMillisecondsToDays(milliseconds));
+}
+
+export function getErrorMessage(error: unknown) {
+  if (typeof error === "string") return error;
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+  console.error("Unable to get error message for error", error);
+  return "Unknown Error";
 }

@@ -37,22 +37,28 @@ export const action = async ({ request, params }: ActionArgs) => {
   if (intent === "deleteReply") {
     const replyId = form.get("replyId");
     if (typeof replyId !== "string") {
-      return new Response("O formulário não foi enviado corretamente", {
-        status: 400,
-      });
+      throw new Response(
+        "A ação de deletar não foi enviada corretamente para o servidor.",
+        {
+          status: 400,
+        },
+      );
     }
 
     const reply = await getReplyById(replyId);
     if (!reply) {
-      return new Response(`Não encontramos uma resposta com id ${replyId}.`, {
+      throw new Response(`Não encontramos um comentário com id "${replyId}".`, {
         status: 400,
       });
     }
 
     if (reply.userId !== userId) {
-      return new Response("Você não tem autorização para fazer essa ação.", {
-        status: 401,
-      });
+      throw new Response(
+        "Você não tem autorização para deletar esse comentário.",
+        {
+          status: 401,
+        },
+      );
     }
 
     await deleteReplyById({ id: reply.id, userId });
@@ -144,7 +150,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 };
 
 export const meta: V2_MetaFunction<typeof loader> = ({ data }: V2_MetaArgs) => [
-  { title: `${data.delay.title} | Denúncia | Matheus Atrasou Hoje?` },
+  { title: `${data?.delay?.title} | Denúncia | Matheus Atrasou Hoje?` },
 ];
 
 const addReplyToList = (newReply: ReplyProps, replys: ReplyProps[]) => [
