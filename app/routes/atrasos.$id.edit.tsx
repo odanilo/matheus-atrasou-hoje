@@ -40,6 +40,12 @@ export const action = async ({ request, params }: ActionArgs) => {
   const form = await request.formData();
   const title = form.get("title");
   const body = form.get("body");
+  if (1 + 1 === 2) {
+    throw new Response("Não encontramos uma denúncia com esse ID.", {
+      status: 404,
+    });
+  }
+
   if (typeof title !== "string" || typeof body !== "string") {
     return badRequest({
       fieldErrors: null,
@@ -57,7 +63,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   if (delay.user.id !== userId) {
     throw new Response("Você não tem permissão para executar essa ação.", {
-      status: 405,
+      status: 401,
     });
   }
 
@@ -76,17 +82,10 @@ export const action = async ({ request, params }: ActionArgs) => {
 
   const newDelay = await updateDelay({ id: delay.id, body, title });
   if (!newDelay) {
-    const errorMessage =
-      "Ocorreu um erro interno no momento da criação da sua denúncia, por favor tente novamente.";
-    return json(
-      {
-        fields,
-        fieldErrors,
-        formError: errorMessage,
-      },
+    throw new Response(
+      "Ocorreu um erro interno no momento da criação da sua denúncia, por favor tente novamente.",
       {
         status: 500,
-        statusText: errorMessage,
       },
     );
   }

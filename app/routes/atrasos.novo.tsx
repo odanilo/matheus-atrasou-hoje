@@ -49,17 +49,10 @@ export const action = async ({ request }: ActionArgs) => {
   const currentDelay = await getLastDelay();
   const newDelay = await createDelay({ body, title, userId });
   if (!newDelay) {
-    const errorMessage =
-      "Ocorreu um erro interno no momento da criação da sua denúncia, por favor tente novamente.";
-    return json(
-      {
-        fields,
-        fieldErrors,
-        formError: errorMessage,
-      },
+    throw new Response(
+      "Ocorreu um erro interno no momento da criação da sua denúncia, por favor tente novamente.",
       {
         status: 500,
-        statusText: errorMessage,
       },
     );
   }
