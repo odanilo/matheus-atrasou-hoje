@@ -62,6 +62,24 @@ async function seed() {
     ),
   );
 
+  await Promise.all(
+    fakeDelays.map((data, index, array) => {
+      const prevDelayIndex = index - 1 < 0 ? 0 : index - 1;
+      const prevDelayDate = array[prevDelayIndex].createAt || new Date();
+      const currentDelayDate = data.createAt;
+      const days = Math.floor(
+        (currentDelayDate.getTime() - prevDelayDate.getTime()) / 86400000,
+      );
+
+      return prisma.streak.create({
+        data: {
+          days,
+          startDay: prevDelayDate,
+        },
+      });
+    }),
+  );
+
   await prisma.vomit.create({
     data: { delayId: delays[3].id, userId: user.id },
   });

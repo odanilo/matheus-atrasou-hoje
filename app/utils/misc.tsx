@@ -7,7 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDelayDate(date: Delay["createdAt"]) {
-  return new Intl.DateTimeFormat("pt-BR").format(date);
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Bahia",
+  }).format(date);
 }
 
 export function convertMillisecondsToDays(milliseconds: number) {
