@@ -28,20 +28,24 @@ async function seed() {
 
   const fakeDelays = [
     {
-      title: "Atraso no Crossfit",
-      body: "Mais uma vez Matheus prometeu chegar 19h e não apareceu deixando seus amigos a ver navios!",
+      title: "Atraso pra nosso compromisso",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean tempor elementum ultrices. Morbi tincidunt sed quam ut ornare. Vestibulum ultrices eros at dolor tempor ullamcorper. Aenean pharetra justo sit amet nisl vestibulum, id rhoncus lacus tincidunt. Mauris nec turpis duis.",
+      createAt: new Date("2023-09-01"),
     },
     {
       title: "Não veio pra formatura",
-      body: "Fat Tony is a cancer on this fair city! He is the cancer and I am the…uh…what cures cancer? Slow down, Bart! My legs don't know how to be as long as yours. What good is money if it can't inspire terror in your fellow man?",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ac tortor quam. Proin quis elit id nibh blandit facilisis. Maecenas vel ut.",
+      createAt: new Date("2023-09-02"),
     },
     {
       title: "Esqueceu de aparecer no bar",
-      body: "Bart, with $10,000 we'd be millionaires! We could buy all kinds of useful things like…love! I hope this has taught you kids a lesson: kids never learn. You know, the one with all the well meaning rules that don't work out in real life, uh, Christianity.",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer euismod in ex non ullamcorper. Ut lobortis justo neque, nec iaculis ipsum convallis id. Nam iaculis libero eget tortor consectetur, eu commodo dui molestie. Etiam id dolor ullamcorper, condimentum dolor nec, tempor erat. Fusce pellentesque porttitor duis.",
+      createAt: new Date("2023-09-10"),
     },
     {
       title: "Deixou de ir pro meu aniversário",
-      body: "A woman is a lot like a refrigerator. Six feet tall, 300 pounds…it makes ice. A woman is a lot like a refrigerator. Six feet tall, 300 pounds…it makes ice. How could you?! Haven't you learned anything from that guy who gives those sermons at church? Captain Whatshisname? We live in a society of laws! Why do you think I took you to all those Police Academy movies? For fun? Well, I didn't hear anybody laughing, did you? Except at that guy who made sound effects. Makes sound effects and laughs. Where was I? Oh yeah! Stay out of my booze.",
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vulputate erat id quam accumsan pellentesque. Maecenas placerat neque ut elementum dignissim. Aliquam bibendum orci eget vestibulum.",
+      createAt: new Date("2023-09-15"),
     },
   ];
 
@@ -52,20 +56,14 @@ async function seed() {
           body: data.body,
           title: data.title,
           userId: user.id,
+          createdAt: data.createAt,
         },
       }),
     ),
   );
 
   await prisma.vomit.create({
-    data: { delayId: delays[1].id, userId: user.id },
-  });
-
-  await prisma.streak.create({
-    data: {
-      days: 10,
-      startDay: new Date("08/09/2023"),
-    },
+    data: { delayId: delays[3].id, userId: user.id },
   });
 
   console.log(`Database has been seeded. 🌱`);
