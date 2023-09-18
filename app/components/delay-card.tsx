@@ -66,8 +66,12 @@ export function DelayCard({
               </span>{" "}
               <span>• {delay.formattedDate}</span>
             </header>
-            <h2 className="mt-1 leading-tight">{delay.title}</h2>
-            <div className="mt-2 whitespace-pre-wrap">{delay.body}</div>
+            <h2 className="mt-1.5 leading-tight font-semibold">
+              {delay.title}
+            </h2>
+            <div className="mt-2 whitespace-pre-wrap text-zinc-200">
+              {delay.body}
+            </div>
           </div>
         </Link>
         <footer className="flex mt-auto justify-end text-zinc-500 p-6 pt-0">
