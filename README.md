@@ -24,7 +24,10 @@ Essa aplicação é fruto de uma brincadeira entre amigos que estavam cansados d
 
 Esse foi um projeto desafiador por ter sido a primeira vez que trabalhava com praticamente todas as tecnologias em um projeto "real" que foi criado na minha cabeça para uma necessidade invidual da minha rotina. Entre os maiores lições estão:
 
-- Aprender como funciona uma **autenticação baseada em cookies**, usando as ferramentas auxiliares do Remix.
+- Aprender mais sobre como funciona e como usar `HTTP cookies`, especialmente para um fluxo de **autenticação**.
+- Rotas dinâmicas e aninhadas. Em um projeto mais robusto e organizado tem espaço para aproveitar muito do conceito de rotas do Remix.
+- Como o Remix lida com a estilização "escopando" as folhas de estilos para as rotas, mas ainda assim tailwind é recomendado.
+- Mutations e validação de erros de uma maneira mais "automatizada".
 - Trabalhar usando mais o lado do **servidor**, que é o coração da filosofia do Remix.
 - Pesquisar e aprender como fazer a **tipagem** de vários pontos da aplicação. Especialmente na utilização de generics para flexibilizar o código e as abstrações.
 - Desenhar um banco de dados simples, mas que já foi possível notar pontos que poderiam ser melhorados.
