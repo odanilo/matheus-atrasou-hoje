@@ -65,7 +65,7 @@ jobs:
         run: pnpm exec prisma generate
 
       - name: 🔎 Type check
-        run: pnpm typecheck --if-present
+        run: pnpm --if-present run typecheck
 
   deploy:
     name: 🚀 Deploy
